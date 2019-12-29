@@ -76,3 +76,82 @@ def get_human_dataset( ):
 
 
 X_train, X_test, y_train, y_test = get_human_dataset()
+
+
+# %%
+X_train.info()
+
+# %%
+y_train["action"].value_counts()
+
+# %%
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+
+dt_clf = DecisionTreeClassifier(random_state=156)
+dt_clf.fit(X_train, y_train)
+pred = dt_clf.predict(X_test)
+accuracy = accuracy_score(y_test, pred)
+
+print("결정 트리 예측 정확도 : {0:.4f}".format(accuracy))
+
+print("DecisionTreeClassifier 기본 하이퍼 하라미터: \n", dt_clf.get_params())
+
+# %%
+from sklearn.model_selection import GridSearchCV
+
+params = {
+    "max_depth" : [6, 8 ,10, 12, 16, 20, 24]
+}
+
+grid_cv = GridSearchCV(dt_clf, param_grid = params, scoring="accuracy", cv = 5, verbose = 1)
+grid_cv.fit(X_train, y_train)
+print("GridSearchCV 최고 평균 정확도 수치:{0:.4f}".format(grid_cv.best_score_))
+print("GridSearchCV 최적 하이퍼 파라미터:", grid_cv.best_params_)
+
+# %%
+cv_results_df = pd.DataFrame(grid_cv.cv_results_)
+cv_results_df.head()
+
+# %%
+cv_results_df[["param_max_depth", "mean_test_score"]]
+
+# %%
+max_depths = [6, 8, 10, 12, 16, 20, 24]
+
+for depth in max_depths:
+    dt_clf = DecisionTreeClassifier(max_depth = depth, random_state = 156)
+    dt_clf.fit(X_train, y_train)
+    pred = dt_clf.predict(X_test)
+    accuracy = accuracy_score(y_test, pred)
+    print("max_depth : {0} accuracy : {1:.4f}".format(depth, accuracy))
+
+# %%
+params = {
+    "max_depth" : [8, 12, 16, 20],
+    "min_samples_split" : [16, 24]
+}
+
+grid_cv = GridSearchCV(dt_clf, param_grid = params, scoring="accuracy", cv = 5, verbose=1)
+grid_cv.fit(X_train, y_train)
+print("GridSearchCV 최고 평균 정확도 수치 : {0:.4f}".format(grid_cv.best_score_))
+print("GridSearchCV 최적 하이퍼 파라미터:", grid_cv.best_params_)
+
+# %%
+best_df_clf = grid_cv.best_estimator_
+pred1 = best_df_clf.predict(X_test)
+accuracy = accuracy_score(y_test, pred1)
+print("결정 트리 예측 정확도 : {0:.4f}".format(accuracy))
+
+# %%
+import seaborn as sns
+ftr_importances_values = best_df_clf.feature_importances_
+
+ftr_importances = pd.Series(ftr_importances_values, index = X_train.columns)
+ftr_top20 = ftr_importances.sort_values(ascending = False)[:20]
+plt.figure(figsize = (8, 6))
+plt.title("Feature importances Top 20")
+sns.barplot(x = ftr_top20, y = ftr_top20.index)
+plt.show()
+
+# %%
