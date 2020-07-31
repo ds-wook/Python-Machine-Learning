@@ -58,12 +58,6 @@ def find_sim_movie(df, sorted_ind, title_name, top_n = 10):
     return df.iloc[similar_indexes]
 
 # %%
-similar_movie = find_sim_movie(movies_df, genre_sim_index, "The Dark Knight", 10)
-similar_movie[["title", "vote_average"]]
-# %%
-movies_df[["title", "vote_average", "vote_count"]].sort_values("vote_average", ascending = False)[:10]
-
-# %%
 C = movies_df["vote_average"].mean()
 m = movies_df["vote_count"].quantile(0.6)
 print("C : {0:.3f}, m : {1:.3f}".format(C, m))
@@ -78,7 +72,6 @@ def weighted_vote_average(record):
     R = record["vote_average"]
 
     return (v / (v + m) * R) + (m / (m + v) * C)
-movies_df["weighted_vote"] = movies_df.apply(weighted_vote_average, axis = 1)
 
 # %%
 def find_sim_movie(df, sorted_ind, title_name, top_n = 10):
@@ -91,9 +84,3 @@ def find_sim_movie(df, sorted_ind, title_name, top_n = 10):
     similar_indexes = similar_indexes[similar_indexes != title_index]
 
     return df.iloc[similar_indexes].sort_values("weighted_vote", ascending = False)[:top_n]
-
-# %%
-similar_movies = find_sim_movie(movies_df, genre_sim_index, "The Godfather", 10)
-similar_movies[["title", "vote_average", "weighted_vote"]]
-
-# %%
