@@ -21,8 +21,7 @@ def zero_or_one_or_empty_ndarray(shape, type=0, dtype=np.int):
 # %%
 def change_shape_of_ndarray(X, n_row):
     try:
-        X = X.flatten() if n_row == 1 else X.reshape(n_row, -1)
-        return X
+        return X.flatten() if n_row == 1 else X.reshape(n_row, -1)
     except:
         return False
 
@@ -44,7 +43,6 @@ def normalize_ndarray(X, axis=99, dtype=np.float32):
     else:
         X = (X - X.mean()) / X.std()
     return X
-
 # %%
 def save_ndarray(X, filename="test.npy"):
     return np.save(file=filename, arr = X)
