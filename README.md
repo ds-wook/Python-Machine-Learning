@@ -1,2 +1,2 @@
 # Python-Machine-Learning
-python for machine learning
+This repository is a summary of study with python for machine learning 
